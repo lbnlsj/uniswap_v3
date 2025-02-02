@@ -1,0 +1,108 @@
+### Jucoin Chain 信息
+```text
+测试用的钱包密钥：0ed0c32803ecf126ba91b65a0a83235bd5e2a6aee5d17ca6676c6780b8328dff
+rpc: http://47.128.241.199:8545
+区块链浏览器：http://13.229.83.99
+链ID：66633666
+```
+
+
+### Jucoin chain 物料(测试链)
+```text
+_nativeCurrencyLabelBytes: 0x4554480000000000000000000000000000000000000000000000000000000000
+(这是"ETH"的bytes32表示)
+
+WETH9 地址：0x35ef5af2D33096007f04AB77050687fd7461BEfa
+
+v3factory 地址：0xd696C0dBAB13603dED0af6562079525f88d4C7eC （3000 -》 0.3%）
+
+NonfungibleTokenPositionDescriptor 地址：0xcbCB214Fa28740B17c1b8A9Aa2B9a928AEAdacb0
+
+NonfungiblePositionManager 地址：0xfFE5A3c30B468E7DE4caC01c4A22564823290d1b
+
+swaprouter 地址：0x9bE604fDcc859D097d563C2ec2a1AB4c5Bf51492
+
+v3pool deploy地址：0xcbCB214Fa28740B17c1b8A9Aa2B9a928AEAdacb0
+
+tokenA 地址：0x54fa4493e9097d8Cbc5672204F2eaa8fB633eeF8
+
+tokenB 地址：0x2682ec102Fd31764FD289CdB028E4C2E2720a54d
+
+tokenA B pool地址：0xDB30CEF8D945dCDEfCB6FF2D4E74F631B8f4DFBa
+
+```
+
+### mint 函数信息
+```text
+["0x54fa4493e9097d8Cbc5672204F2eaa8fB633eeF8","0x2682ec102Fd31764FD289CdB028E4C2E2720a54d",3000,-887272,887272,"10000000000000000000","10000000000000000000",0,0,"0x7A1944D470efD452beFA1fBF597e57c88B0F76Fa",1806745599]
+```
+
+### swap参数
+```text
+["0x54fa4493e9097d8Cbc5672204F2eaa8fB633eeF8","0x2682ec102Fd31764FD289CdB028E4C2E2720a54d",3000,"0x7A1944D470efD452beFA1fBF597e57c88B0F76Fa",1806691772,"10000000000000000000",0,0]
+```
+
+### base testnet chain 物料(测试链)
+```text
+_nativeCurrencyLabelBytes: 0x4554480000000000000000000000000000000000000000000000000000000000
+(这是"ETH"的bytes32表示)
+
+WETH9 地址：0x4200000000000000000000000000000000000006
+
+v3factory 地址： 0x54fa4493e9097d8Cbc5672204F2eaa8fB633eeF8（3000 -》 0.3%）
+
+NonfungibleTokenPositionDescriptor 地址：0xfFE5A3c30B468E7DE4caC01c4A22564823290d1b
+
+NonfungiblePositionManager 地址：0x83F67C7501dD6E761568E58C99fB4f12c2032Cf2
+
+swaprouter 地址：0xe08B67fBC1322f489120926d943cd718ad748913
+
+v3pool deploy地址：0xcbCB214Fa28740B17c1b8A9Aa2B9a928AEAdacb0
+
+tokenA 地址：0xcBd10FbC4d0834e47253bFddfa0fff90cC9D8cDE
+
+tokenB 地址：0xd696C0dBAB13603dED0af6562079525f88d4C7eC
+
+tokenA B pool地址：0x3DbdBe4c570FafF009e7852C4f9d70bE06A2080d
+
+```
+
+### mint 函数信息
+```text
+["0xcBd10FbC4d0834e47253bFddfa0fff90cC9D8cDE","0xd696C0dBAB13603dED0af6562079525f88d4C7eC",3000,-887272,887272,"1000000000000000000","1000000000000000000",0,0,"0x7A1944D470efD452beFA1fBF597e57c88B0F76Fa",1806745599]
+```
+
+### swap参数
+```text
+["0xcBd10FbC4d0834e47253bFddfa0fff90cC9D8cDE","0xd696C0dBAB13603dED0af6562079525f88d4C7eC",3000,"0x7A1944D470efD452beFA1fBF597e57c88B0F76Fa",1806691772,"10000000000000000000",0,0]
+```
+
+### 部署的base testnet的合约信息 sepolia
+```text
+{"v3CoreFactoryAddress":"0x56B4F19ff5A0A1dA0Bb32B51429EECcFC8deE6C6","multicall2Address":"0xd634e1D7E38eF29c05eB5fC48bC139a017acBe3e","proxyAdminAddress":"0x239800ce85B4c1a889D2e26043E260f31e1caa6F","tickLensAddress":"0x042ed8D52a95f826DA63aa7AFb7C635D6F13fabF","nftDescriptorLibraryAddressV1_3_0":"0xb727597854991c15147e8Fe2108F5f6634351e61","nonfungibleTokenPositionDescriptorAddressV1_3_0":"0xBA844d83D14b44857AB3eac784549f6d67aFbd75","descriptorProxyAddress":"0xd28ba41A3972638226eaEFc2eEF17580806e87B4","nonfungibleTokenPositionManagerAddress":"0x1062d93B59099a1379Eb8eD1fF7c6175b8CD48a2","v3MigratorAddress":"0x3bBfF6936a5a711dC62A342F6575b455e2954199","v3StakerAddress":"0x9E020cBc6252F86062263231Bf7D83f45500Db10","quoterV2Address":"0x663fB0171E03D1dEDdca75Bd5E88AcEE97A4894d","swapRouter02":"0x33261D00139c7c206B6A085FdDa4C300e694655f"}
+```
+
+yarn start \
+  --private-key 0x0ed0c32803ecf126ba91b65a0a83235bd5e2a6aee5d17ca6676c6780b8328dff \
+  --json-rpc https://sepolia.base.org \
+  --weth9-address 0xb96a7a9c0da331328f59c756aaf4b52e99636adf \
+  --native-currency-label ETH \
+  --owner-address 0x7A1944D470efD452beFA1fBF597e57c88B0F76Fa \
+  --confirmations 2
+
+yarn start \
+  --private-key 0x0ed0c32803ecf126ba91b65a0a83235bd5e2a6aee5d17ca6676c6780b8328dff \
+  --json-rpc http://47.128.241.199:8545 \
+  --weth9-address 0x35ef5af2D33096007f04AB77050687fd7461BEfa \
+  --native-currency-label ETH \
+  --owner-address 0x7A1944D470efD452beFA1fBF597e57c88B0F76Fa \
+  --confirmations 2
+
+### bnb testnet
+yarn start \
+  --private-key 0x0ed0c32803ecf126ba91b65a0a83235bd5e2a6aee5d17ca6676c6780b8328dff \
+  --json-rpc https://data-seed-prebsc-1-s1.bnbchain.org:8545 \
+  --weth9-address 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd \
+  --native-currency-label tBNB \
+  --owner-address 0x7A1944D470efD452beFA1fBF597e57c88B0F76Fa \
+  --confirmations 2

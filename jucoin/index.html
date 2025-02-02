@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEX Interface</title>
+    <!-- Load dependencies -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6">DEX Interface</h1>
+
+        <!-- Tab Navigation -->
+        <div class="flex mb-4 border-b">
+            <button class="px-4 py-2 mr-2 tab-button active" data-tab="add-liquidity">Add Liquidity</button>
+            <button class="px-4 py-2 mr-2 tab-button" data-tab="swap">Swap</button>
+            <button class="px-4 py-2 tab-button" data-tab="remove-liquidity">Remove Liquidity</button>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status" class="hidden mb-4 p-4 rounded"></div>
+
+        <!-- Add Liquidity Tab -->
+        <div id="add-liquidity" class="tab-content active">
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-2">Token A Amount</label>
+                    <input type="text" id="amount0" value="10" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block mb-2">Token B Amount</label>
+                    <input type="text" id="amount1" value="10" class="w-full p-2 border rounded">
+                </div>
+                <button onclick="dex.addLiquidity()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    Add Liquidity
+                </button>
+            </div>
+        </div>
+
+        <!-- Swap Tab -->
+        <div id="swap" class="tab-content">
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-2">Amount</label>
+                    <input type="text" id="swapAmount" value="1" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block mb-2">Direction</label>
+                    <select id="swapDirection" class="w-full p-2 border rounded">
+                        <option value="0to1">Token A to Token B</option>
+                        <option value="1to0">Token B to Token A</option>
+                    </select>
+                </div>
+                <button onclick="dex.swap()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    Swap
+                </button>
+            </div>
+        </div>
+
+        <!-- Remove Liquidity Tab -->
+        <div id="remove-liquidity" class="tab-content">
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-2">Position ID</label>
+                    <input type="text" id="positionId" class="w-full p-2 border rounded">
+                </div>
+                <button onclick="dex.removeLiquidity()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    Remove Liquidity
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ABIs
+        const POSITION_MANAGER_ABI = [
+            "function mint(tuple(address token0,address token1,uint24 fee,int24 tickLower,int24 tickUpper,uint256 amount0Desired,uint256 amount1Desired,uint256 amount0Min,uint256 amount1Min,address recipient,uint256 deadline)) external returns (uint256 tokenId,uint128 liquidity,uint256 amount0,uint256 amount1)",
+            "function positions(uint256 tokenId) external view returns (uint96 nonce,address operator,address token0,address token1,uint24 fee,int24 tickLower,int24 tickUpper,uint128 liquidity,uint256 feeGrowthInside0LastX128,uint256 feeGrowthInside1LastX128,uint128 tokensOwed0,uint128 tokensOwed1)",
+            "function decreaseLiquidity(tuple(uint256 tokenId,uint128 liquidity,uint256 amount0Min,uint256 amount1Min,uint256 deadline)) external returns (uint256 amount0,uint256 amount1)",
+            "function collect(tuple(uint256 tokenId,address recipient,uint128 amount0Max,uint128 amount1Max)) external returns (uint256 amount0,uint256 amount1)"
+        ];
+
+        const ROUTER_ABI = [
+            "function exactInputSingle(tuple(address tokenIn,address tokenOut,uint24 fee,address recipient,uint256 amountIn,uint256 amountOutMinimum,uint160 sqrtPriceLimitX96)) external returns (uint256 amountOut)"
+        ];
+
+        const ERC20_ABI = [
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function balanceOf(address account) external view returns (uint256)",
+            "function symbol() external view returns (string)"
+        ];
+
+        class DEX {
+            constructor() {
+                this.loadConfig();
+            }
+
+            async loadConfig() {
+                try {
+                    const response = await fetch('state.json');
+                    this.config = await response.json();
+                    this.provider = new ethers.providers.JsonRpcProvider(this.config.PROVIDER_URL);
+                    this.signer = new ethers.Wallet(this.config.PRIVATE_KEY, this.provider);
+                    this.showStatus('Configuration loaded successfully', 'success');
+                } catch (error) {
+                    this.showStatus('Failed to load configuration: ' + error.message, 'error');
+                }
+            }
+
+            showStatus(message, type = 'info') {
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = message;
+                statusDiv.className = `mb-4 p-4 rounded ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+                statusDiv.classList.remove('hidden');
+            }
+
+            async addLiquidity() {
+                try {
+                    this.showStatus('Adding liquidity...');
+                    const positionManager = new ethers.Contract(
+                        this.config.nonfungibleTokenPositionManagerAddress,
+                        POSITION_MANAGER_ABI,
+                        this.signer
+                    );
+
+                    const amount0 = document.getElementById('amount0').value;
+                    const amount1 = document.getElementById('amount1').value;
+                    const amount0Wei = ethers.utils.parseEther(amount0);
+                    const amount1Wei = ethers.utils.parseEther(amount1);
+
+                    // Approve tokens
+                    const token0 = new ethers.Contract(this.config.TOKEN_A, ERC20_ABI, this.signer);
+                    const token1 = new ethers.Contract(this.config.TOKEN_B, ERC20_ABI, this.signer);
+
+                    await token0.approve(this.config.nonfungibleTokenPositionManagerAddress, amount0Wei);
+                    await token1.approve(this.config.nonfungibleTokenPositionManagerAddress, amount1Wei);
+
+                    const params = {
+                        token0: this.config.TOKEN_A,
+                        token1: this.config.TOKEN_B,
+                        fee: this.config.FEE_TIER,
+                        tickLower: -887220,
+                        tickUpper: 887220,
+                        amount0Desired: amount0Wei,
+                        amount1Desired: amount1Wei,
+                        amount0Min: 0,
+                        amount1Min: 0,
+                        recipient: await this.signer.getAddress(),
+                        deadline: Math.floor(Date.now() / 1000) + 60 * 20
+                    };
+
+                    const tx = await positionManager.mint(params);
+                    await tx.wait();
+                    this.showStatus('Liquidity added successfully!', 'success');
+                } catch (error) {
+                    this.showStatus('Failed to add liquidity: ' + error.message, 'error');
+                }
+            }
+
+            async swap() {
+                try {
+                    this.showStatus('Swapping...');
+                    const router = new ethers.Contract(this.config.swapRouter02, ROUTER_ABI, this.signer);
+
+                    const amount = document.getElementById('swapAmount').value;
+                    const direction = document.getElementById('swapDirection').value;
+                    const amountIn = ethers.utils.parseEther(amount);
+
+                    const tokenIn = direction === '0to1' ? this.config.TOKEN_A : this.config.TOKEN_B;
+                    const tokenOut = direction === '0to1' ? this.config.TOKEN_B : this.config.TOKEN_A;
+
+                    const token = new ethers.Contract(tokenIn, ERC20_ABI, this.signer);
+                    await token.approve(this.config.swapRouter02, amountIn);
+
+                    const params = {
+                        tokenIn,
+                        tokenOut,
+                        fee: this.config.FEE_TIER,
+                        recipient: await this.signer.getAddress(),
+                        amountIn,
+                        amountOutMinimum: 0,
+                        sqrtPriceLimitX96: 0
+                    };
+
+                    const tx = await router.exactInputSingle(params);
+                    await tx.wait();
+                    this.showStatus('Swap completed successfully!', 'success');
+                } catch (error) {
+                    this.showStatus('Failed to swap: ' + error.message, 'error');
+                }
+            }
+
+            async removeLiquidity() {
+                try {
+                    this.showStatus('Removing liquidity...');
+                    const positionManager = new ethers.Contract(
+                        this.config.nonfungibleTokenPositionManagerAddress,
+                        POSITION_MANAGER_ABI,
+                        this.signer
+                    );
+
+                    const positionId = document.getElementById('positionId').value;
+                    const position = await positionManager.positions(positionId);
+
+                    const params = {
+                        tokenId: positionId,
+                        liquidity: position.liquidity,
+                        amount0Min: 0,
+                        amount1Min: 0,
+                        deadline: Math.floor(Date.now() / 1000) + 60 * 20
+                    };
+
+                    const tx = await positionManager.decreaseLiquidity(params);
+                    await tx.wait();
+
+                    const collectParams = {
+                        tokenId: positionId,
+                        recipient: await this.signer.getAddress(),
+                        amount0Max: ethers.constants.MaxUint256,
+                        amount1Max: ethers.constants.MaxUint256
+                    };
+
+                    const collectTx = await positionManager.collect(collectParams);
+                    await collectTx.wait();
+
+                    this.showStatus('Liquidity removed successfully!', 'success');
+                } catch (error) {
+                    this.showStatus('Failed to remove liquidity: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Initialize DEX and set up tab switching
+        const dex = new DEX();
+
+        // Tab switching logic
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Update button states
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+
+                // Update content visibility
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
