@@ -10,13 +10,25 @@ const POSITION_MANAGER_ABI = [
     "function collect(tuple(uint256 tokenId, address recipient, uint128 amount0Max, uint128 amount1Max) params) external payable returns (uint256 amount0, uint256 amount1)"
 ];
 
-// Configuration object
-const CONFIG = {
-    PROVIDER_URL: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
-    PRIVATE_KEY: "0x0ed0c32803ecf126ba91b65a0a83235bd5e2a6aee5d17ca6676c6780b8328dff",
-    POSITION_MANAGER: "0xaf8ABfa64d433C7E9cA45A56Ba4753b43ac0514B",
-    TOKEN_ID: 1,
-};
+
+const fs = require('fs');
+const path = require('path');
+
+// Load configuration from config.json
+function loadConfig() {
+    try {
+        const configPath = path.join(__dirname, 'state.json');
+        const configFile = fs.readFileSync(configPath, 'utf8');
+        return JSON.parse(configFile);
+    } catch (error) {
+        console.error('Error loading config.json:', error);
+        process.exit(1);
+    }
+}
+
+// Initialize configuration
+const CONFIG = loadConfig();
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Calculate MAX_UINT128 = 2^128 - 1
 const MAX_UINT128 = ethers.BigNumber.from(2).pow(128).sub(1);
@@ -26,7 +38,7 @@ class UniswapV3LiquidityManager {
         this.provider = new ethers.providers.JsonRpcProvider(config.PROVIDER_URL);
         this.wallet = new ethers.Wallet(config.PRIVATE_KEY, this.provider);
         this.positionManager = new ethers.Contract(
-            config.POSITION_MANAGER,
+            config.nonfungibleTokenPositionManagerAddress,
             POSITION_MANAGER_ABI,
             this.wallet
         );

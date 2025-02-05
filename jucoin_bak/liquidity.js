@@ -20,18 +20,7 @@ function loadConfig() {
 
 // Initialize configuration
 const CONFIG = loadConfig();
-
-// Configuration
-// const CONFIG = {
-//     PROVIDER_URL: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
-//     PRIVATE_KEY: "0x0ed0c32803ecf126ba91b65a0a83235bd5e2a6aee5d17ca6676c6780b8328dff",
-//     TOKEN_A: "0xBbBec56eE46591E82507cbCb895f1663D7d72d2f",
-//     TOKEN_B: "0x1ba48dCE16a2101af63bfBF1d132D3b137ABA8EA",
-//     FACTORY: "0x9bE604fDcc859D097d563C2ec2a1AB4c5Bf51492",
-//     POSITION_MANAGER: "0xaf8ABfa64d433C7E9cA45A56Ba4753b43ac0514B",
-//     ROUTER: "0xD7041bC7DF95E9Ec1c314AEc1EAC282dFc0A7c68",
-//     FEE_TIER: 3000
-// };
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const provider = new ethers.providers.JsonRpcProvider(CONFIG.PROVIDER_URL);
 const wallet = new ethers.Wallet(CONFIG.PRIVATE_KEY, provider);
@@ -87,7 +76,7 @@ async function checkAndCreatePool() {
 
 async function addLiquidity() {
     const positionManager = new ethers.Contract(
-        CONFIG.POSITION_MANAGER,
+        CONFIG.nonfungibleTokenPositionManagerAddress,
         INonfungiblePositionManager.abi,
         wallet
     );
@@ -95,7 +84,9 @@ async function addLiquidity() {
     // Approve tokens
     const amount = ethers.utils.parseEther("1000");
     await approveToken(TOKEN0, CONFIG.nonfungibleTokenPositionManagerAddress, amount);
+    await delay(5000);
     await approveToken(TOKEN1, CONFIG.nonfungibleTokenPositionManagerAddress, amount);
+    await delay(5000);
 
     const mintParams = {
         token0: TOKEN0,

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uniswap Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.2/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+</head>
+<body class="bg-gray-100">
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Uniswap Interface</h1>
+        <div class="flex justify-between items-center">
+            <div id="walletStatus" class="bg-gray-200 rounded-lg px-4 py-2">
+                Not connected
+            </div>
+            <button id="connectWallet" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Connect Wallet
+            </button>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 gap-8">
+        <!-- Create Token Section -->
+        <section class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Create Token</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token Name</label>
+                    <input type="text" id="tokenName"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token Symbol</label>
+                    <input type="text" id="tokenSymbol"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <button id="createToken" class="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Create Token
+                </button>
+            </div>
+        </section>
+
+        <!-- Add Liquidity Section -->
+        <section class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Add Liquidity</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token A Address</label>
+                    <input type="text" id="tokenAAddress"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token A Amount</label>
+                    <input type="number" id="tokenAAmount"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token B Address</label>
+                    <input type="text" id="tokenBAddress"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token B Amount</label>
+                    <input type="number" id="tokenBAmount"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <button id="addLiquidity" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Add Liquidity
+                </button>
+            </div>
+        </section>
+
+        <!-- Swap Section -->
+        <section class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Swap Tokens</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token In</label>
+                    <input type="text" id="tokenInAddress"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Amount In</label>
+                    <input type="number" id="amountIn"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Token Out</label>
+                    <input type="text" id="tokenOutAddress"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <button id="swap" class="w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                    Swap
+                </button>
+            </div>
+        </section>
+
+        <!-- Remove Liquidity Section -->
+        <section class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Remove Liquidity</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Position ID</label>
+                    <input type="number" id="positionId"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Percentage to Remove</label>
+                    <input type="number" id="removePercentage"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" value="100" min="0"
+                           max="100">
+                </div>
+                <button id="removeLiquidity" class="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                    Remove Liquidity
+                </button>
+            </div>
+        </section>
+
+        <!-- Pool Info Section -->
+        <section class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Pool Information</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Pool Address</label>
+                    <input type="text" id="poolAddress"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <button id="queryPool" class="w-full bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    Query Pool
+                </button>
+                <div id="poolInfo" class="mt-4 p-4 bg-gray-50 rounded">
+                    No pool information available
+                </div>
+            </div>
+        </section>
+
+        <!-- Transaction History Section -->
+        <section class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Transaction History</h2>
+            <div id="transactionHistory" class="space-y-2">
+                <!-- Transaction records will be inserted here -->
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Status Messages -->
+<div id="statusMessage" class="fixed bottom-4 right-4 max-w-md"></div>
+</body>
+</html>

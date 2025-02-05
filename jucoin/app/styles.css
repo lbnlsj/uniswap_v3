@@ -1,0 +1,111 @@
+/* Custom styles to enhance the Tailwind base */
+.input-focus {
+    transition: all 0.3s ease-in-out;
+}
+
+.input-focus:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Status message animations */
+#statusMessage > div {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Transaction history hover effects */
+#transactionHistory > div {
+    transition: transform 0.2s ease-in-out;
+}
+
+#transactionHistory > div:hover {
+    transform: translateX(5px);
+}
+
+/* Button hover animations */
+button {
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Input styling */
+input {
+    transition: border-color 0.2s ease-in-out;
+}
+
+input:focus {
+    border-color: #3b82f6;
+}
+
+/* Section hover effects */
+section {
+    transition: transform 0.2s ease-in-out;
+}
+
+section:hover {
+    transform: translateY(-2px);
+}
+
+/* Pool info styling */
+#poolInfo {
+    transition: all 0.3s ease-in-out;
+}
+
+#poolInfo:not(:empty) {
+    border-left: 4px solid #3b82f6;
+}
+
+/* Wallet status styling */
+#walletStatus {
+    transition: all 0.3s ease-in-out;
+}
+
+#walletStatus.connected {
+    background-color: #10B981;
+    color: white;
+}
+
+/* Loading states */
+.loading {
+    position: relative;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

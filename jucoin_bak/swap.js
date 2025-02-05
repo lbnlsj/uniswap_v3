@@ -5,16 +5,24 @@ const IERC20 = require("@openzeppelin/contracts/build/contracts/IERC20.json");
 const SWAP_ROUTER_ABI = [
     "function exactInputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) params) external payable returns (uint256 amountOut)"
 ];
+const fs = require('fs');
+const path = require('path');
 
-// Configuration
-const CONFIG = {
-    PROVIDER_URL: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
-    PRIVATE_KEY: "0x0ed0c32803ecf126ba91b65a0a83235bd5e2a6aee5d17ca6676c6780b8328dff",
-    TOKEN_A: "0xBbBec56eE46591E82507cbCb895f1663D7d72d2f",
-    TOKEN_B: "0x1ba48dCE16a2101af63bfBF1d132D3b137ABA8EA",
-    ROUTER: "0xD7041bC7DF95E9Ec1c314AEc1EAC282dFc0A7c68",
-    FEE_TIER: 3000
-};
+// Load configuration from config.json
+function loadConfig() {
+    try {
+        const configPath = path.join(__dirname, 'state.json');
+        const configFile = fs.readFileSync(configPath, 'utf8');
+        return JSON.parse(configFile);
+    } catch (error) {
+        console.error('Error loading config.json:', error);
+        process.exit(1);
+    }
+}
+
+// Initialize configuration
+const CONFIG = loadConfig();
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const provider = new ethers.providers.JsonRpcProvider(CONFIG.PROVIDER_URL);
 const wallet = new ethers.Wallet(CONFIG.PRIVATE_KEY, provider);
@@ -27,18 +35,18 @@ const [TOKEN0, TOKEN1] = ethers.BigNumber.from(CONFIG.TOKEN_A).lt(CONFIG.TOKEN_B
 async function approveToken(tokenAddress, spender, amount) {
     const token = new ethers.Contract(tokenAddress, IERC20.abi, wallet);
     console.log(`Approving ${spender} to spend ${tokenAddress}`);
-    // const tx = await token.approve(spender, amount);
-    // await tx.wait();
+    const tx = await token.approve(spender, amount);
+    await tx.wait();
     console.log(`Approval confirmed for ${tokenAddress}`);
 }
 
 async function performSwap() {
     // 使用精简的 ABI 创建合约实例
-    const router = new ethers.Contract(CONFIG.ROUTER, SWAP_ROUTER_ABI, wallet);
+    const router = new ethers.Contract(CONFIG.swapRouter02, SWAP_ROUTER_ABI, wallet);
 
     // 使用 parseUnits 处理代币金额
     const amountIn = ethers.utils.parseUnits("1", 18);
-    await approveToken(TOKEN0, CONFIG.ROUTER, amountIn);
+    await approveToken(TOKEN0, CONFIG.swapRouter02, amountIn);
 
     // 根据合约定义的结构构造参数
     const params = {
